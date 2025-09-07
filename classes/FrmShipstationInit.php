@@ -9,6 +9,9 @@ class FrmShipstationInit {
         // API class
         require_once FRM_SHP_BASE_URL.'/classes/api/FrmShipstationApi.php';
 
+        // Endpoints
+        require_once FRM_SHP_BASE_URL.'/classes/endpoints/FrmShipstationRoutes.php';
+
         /*
         // CRON
         require_once FRM_SHP_BASE_URL.'/classes/cron/schedules.cron.php';
