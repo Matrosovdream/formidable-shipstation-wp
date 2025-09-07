@@ -1,6 +1,5 @@
 <?php
 
-
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 class FrmShipstationApi {
@@ -61,6 +60,22 @@ class FrmShipstationApi {
      */
     public function listCarriers() {
         return $this->request( 'GET', '/carriers' );
+    }
+
+    // List services for a carrier
+    public function listCarrierServices( array $args ) {
+        if ( empty( $args['carrierCode'] ) ) {
+            return new WP_Error( 'shipstation_carriercode_required', __( 'carrierCode is required.', 'shipstation-wp' ), [ 'status' => 400 ] );
+        }
+        return $this->request( 'GET', '/carriers/listservices/?carrierCode=' . urlencode( $args['carrierCode'] ) );
+    }
+
+    // List packages for a carrier
+    public function listCarrierPackages( array $args ) {
+        if ( empty( $args['carrierCode'] ) ) {
+            return new WP_Error( 'shipstation_carriercode_required', __( 'carrierCode is required.', 'shipstation-wp' ), [ 'status' => 400 ] );
+        }
+        return $this->request( 'GET', '/carriers/listpackages/?carrierCode=' . urlencode( $args['carrierCode'] ) );
     }
 
     /**
@@ -182,9 +197,11 @@ class FrmShipstationApi {
         if ( $this->defaultInsurance && $this->defaultInsuranceAmount > 0 ) {
             $shipment['insuranceOptions'] = [ 'insureShipment' => true, 'insuredValue' => $this->defaultInsuranceAmount ];
         }
+        /*
         echo '<pre>';
         print_r($shipment);
         echo '</pre>';
+        */
         return $this->request( 'POST', '/orders/createlabelfororder', [], [ 'shipment' => $shipment ] );
         
     }
@@ -299,6 +316,92 @@ class FrmShipstationApi {
             error_log( $line );
         }
     }
+
+    /**
+     * listOrder — list ShipStation orders (v1) with optional auto-pagination.
+     *
+     * Accepts common ShipStation filters; any of these keys you pass will be sent:
+     *   orderNumber, customerName, orderStatus, paymentStatus, storeId, tagId,
+     *   orderDateStart, orderDateEnd, createDateStart, createDateEnd,
+     *   modifyDateStart, modifyDateEnd, sortBy, sortDir, page, pageSize
+     *
+     * @param array $params
+     * @param bool  $autoPaginate  true = fetch all pages and return ['orders'=>[...], 'total'=>N]
+     *                             false = return ShipStation's raw page envelope
+     * @return array|WP_Error
+     */
+    public function listOrder( array $params = [], bool $autoPaginate = true ) {
+        // Allow some friendly aliases
+        if (isset($params['createDateStart']) && empty($params['orderDateStart'])) {
+            // (optional) map to orderDateStart if you prefer that window
+            // $params['orderDateStart'] = $params['createDateStart'];
+            // unset($params['createDateStart']);
+        }
+        if (isset($params['createDateEnd']) && empty($params['orderDateEnd'])) {
+            // $params['orderDateEnd'] = $params['createDateEnd'];
+            // unset($params['createDateEnd']);
+        }
+
+        // Whitelist of allowed query params for /orders
+        $allowed = [
+            'orderNumber','customerName','orderStatus','paymentStatus','storeId','tagId',
+            'orderDateStart','orderDateEnd','createDateStart','createDateEnd',
+            'modifyDateStart','modifyDateEnd','sortBy','sortDir','page','pageSize',
+        ];
+
+        $query = [];
+        foreach ($allowed as $k) {
+            if (array_key_exists($k, $params) && $params[$k] !== '' && $params[$k] !== null) {
+                $query[$k] = $params[$k];
+            }
+        }
+
+        // defaults
+        if (empty($query['page']))     { $query['page'] = 1; }
+        if (empty($query['pageSize'])) { $query['pageSize'] = 100; }
+
+        // First request
+        $first = $this->request('GET', '/orders', $query);
+        if (is_wp_error($first)) { return $first; }
+        if (!$autoPaginate)      { return $first; }
+
+        $all   = isset($first['orders']) && is_array($first['orders']) ? $first['orders'] : [];
+        $total = isset($first['total']) ? (int) $first['total'] : null;
+        $pages = isset($first['pages']) ? (int) $first['pages'] : null;
+
+        $page = (int) ($first['page'] ?? $query['page']);
+        $size = (int) ($first['pageSize'] ?? $query['pageSize']);
+
+        while (true) {
+            if ($pages !== null && $page >= $pages) { break; }
+            if ($pages === null && $total !== null && count($all) >= $total) { break; }
+
+            $page++;
+            $query['page'] = $page;
+
+            $resp = $this->request('GET', '/orders', $query);
+            if (is_wp_error($resp)) { return $resp; }
+
+            $chunk = isset($resp['orders']) && is_array($resp['orders']) ? $resp['orders'] : [];
+            if (empty($chunk)) { break; }
+            $all = array_merge($all, $chunk);
+
+            if (isset($resp['pages'])) { $pages = (int) $resp['pages']; }
+            if (isset($resp['total'])) { $total = (int) $resp['total']; }
+
+            // safety stops
+            if (count($all) >= 200000) { break; }
+            if (count($chunk) < $size) { break; }
+        }
+
+        return ['orders' => $all, 'total' => $total ?? count($all)];
+    }
+
+    /** Convenience alias */
+    public function listOrders( array $params = [], bool $autoPaginate = true ) {
+        return $this->listOrder($params, $autoPaginate);
+    }
+
 }
 
 // --- Optional convenience factory ---
