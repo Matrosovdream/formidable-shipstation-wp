@@ -24,6 +24,16 @@ function FrmShipstationInit() {
     
     if( isset( $_GET['logg'] ) ) {
 
+        $model = new FrmShipstationModelEntry();
+        $res = $model->updateOrdersApi();
+
+        echo '<pre>';
+        print_r($res);
+        echo '</pre>';
+
+        die();
+
+
         //setTest(); die();
 
         $orderNumber = 100001;
