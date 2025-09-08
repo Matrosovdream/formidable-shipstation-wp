@@ -4,12 +4,13 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 class FrmShipstationOrderModel extends FrmShipstationAbstractModel {
 
-    private $db;
-    private string $table;
+    protected $db;
+    protected string $table;
 
     /** Whitelisted sortable columns */
     private const SORTABLE = [
-        'id','shp_order_id','shp_order_number','entry_id','order_status','total','shipping_total','carrier_code','service_code','created_at','updated_at','paid_at'
+        'id','shp_order_id','shp_order_number','entry_id','order_status','total','shipping_total',
+        'carrier_code','service_code','package_code','created_at','updated_at','paid_at', 'ship_date'
     ];
 
     private FrmShipstationShipmentModel $shipmentModel;
@@ -156,8 +157,8 @@ class FrmShipstationOrderModel extends FrmShipstationAbstractModel {
         
         $cols = [
             'shp_order_id', 'shp_order_number', 'entry_id', 'order_status',
-            'total', 'shipping_total', 'carrier_code', 'service_code',
-            'created_at', 'updated_at', 'paid_at',
+            'total', 'shipping_total', 'carrier_code', 'service_code', 'package_code',
+            'created_at', 'updated_at', 'paid_at', 'ship_date'
         ];
         $formats = [
             'shp_order_id' => '%d',
@@ -168,9 +169,11 @@ class FrmShipstationOrderModel extends FrmShipstationAbstractModel {
             'shipping_total' => '%f',
             'carrier_code' => '%s',
             'service_code' => '%s',
+            'package_code' => '%s',
             'created_at' => '%s',
             'updated_at' => '%s',
             'paid_at' => '%s',
+            'ship_date' => '%s',
         ];
 
         return $this->multipleUpdateCreateAbstract( $rows, $cols, $formats, $uniqueKey = 'shp_order_id' );
