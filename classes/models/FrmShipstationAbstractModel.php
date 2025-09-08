@@ -5,10 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 abstract class FrmShipstationAbstractModel {
 
     /** @var wpdb */
-    private $db;
+    protected $db;
 
     /** @var string Fully-qualified table name incl. prefix */
-    private string $table;
+    protected string $table;
 
     public function __construct() {
 
@@ -29,8 +29,8 @@ abstract class FrmShipstationAbstractModel {
         
         foreach ( $rows as $idx => $row ) {
             if ( ! is_array( $row ) ) { continue; }
-            if ( empty( $row['shp_order_id'] ) ) {
-            $errors[] = "Row {$idx}: missing shp_order_id";
+            if ( empty( $row[ $uniqueKey ] ) ) {
+            $errors[] = "Row {$idx}: missing $uniqueKey";
             continue;
             }
             $batch[] = $this->normalizeOrderRow( $row );
