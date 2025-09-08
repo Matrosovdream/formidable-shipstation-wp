@@ -2,7 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 class FrmShipstationMigrations {
-    public const DB_VERSION = '1.0.0';
+    public const DB_VERSION = '1.0.2';
     public const VERSION_OPTION = 'shipstation_wp_db_version';
 
     /** Run on plugin activation */
@@ -49,9 +49,11 @@ class FrmShipstationMigrations {
             shipping_total decimal(12,2) NOT NULL DEFAULT 0.00,
             carrier_code varchar(100) NULL,
             service_code varchar(100) NULL,
+            package_code varchar(100) NULL,
             created_at datetime NULL,
             updated_at datetime NULL,
             paid_at datetime NULL,
+            ship_date datetime NULL,
             PRIMARY KEY  (id),
             UNIQUE KEY uniq_shp_order_id (shp_order_id),
             KEY idx_shp_order_number (shp_order_number),
@@ -65,25 +67,31 @@ class FrmShipstationMigrations {
         $table = $prefix . 'frm_shipstation_shipments';
         return "CREATE TABLE {$table} (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+            shipment_id bigint(20) unsigned NULL,
             shp_order_id bigint(20) unsigned NOT NULL,
             shp_order_number varchar(100) NOT NULL,
             entry_id bigint(20) unsigned NULL,
-            shipment_cost decimal(12,2) NOT NULL DEFAULT 0.00,
+            shipment_total decimal(12,2) NOT NULL DEFAULT 0.00,
             insurance_cost decimal(12,2) NOT NULL DEFAULT 0.00,
+            tracking_number varchar(100) NULL,
             carrier_code varchar(100) NULL,
             service_code varchar(100) NULL,
             package_code varchar(100) NULL,
-            tracking_number varchar(100) NULL,
             is_voided tinyint(1) NOT NULL DEFAULT 0,
-            void_date datetime NULL,
+            voided_at datetime NULL,
+            ship_to longtext NULL,
+            weight longtext NULL,
+            dimensions longtext NULL,
             created_at datetime NULL,
+            updated_at datetime NULL,
             shipped_at datetime NULL,
             PRIMARY KEY  (id),
             KEY idx_shp_order_id (shp_order_id),
             KEY idx_shp_order_number (shp_order_number),
-            UNIQUE KEY uniq_tracking (tracking_number)
+            KEY idx_shipment_id (shipment_id),
+            UNIQUE KEY uniq_tracking (shipment_id),
         ) {$collate};";
-    }
+    }    
 
     private static function sql_carriers( string $prefix, string $collate ): string {
         $table = $prefix . 'frm_shipstation_carriers';
