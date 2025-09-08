@@ -402,6 +402,86 @@ class FrmShipstationApi {
         return $this->listOrder($params, $autoPaginate);
     }
 
+        /**
+     * listShipment — list ShipStation shipments (v1) with optional auto-pagination.
+     *
+     * Accepts common ShipStation filters; any of these keys you pass will be sent:
+     *   orderId, orderNumber, recipientName, trackingNumber,
+     *   carrierCode, serviceCode, batchId,
+     *   shipDateStart, shipDateEnd,
+     *   createDateStart, createDateEnd,
+     *   voidDateStart,   voidDateEnd,
+     *   sortBy, sortDir, page, pageSize
+     *
+     * @param array $params
+     * @param bool  $autoPaginate  true = fetch all pages and return ['shipments'=>[...], 'total'=>N]
+     *                             false = return ShipStation's raw page envelope
+     * @return array|WP_Error
+     */
+    public function listShipment( array $params = [], bool $autoPaginate = true ) {
+        // Whitelist of allowed query params for /shipments
+        $allowed = [
+            'orderId','orderNumber','recipientName','trackingNumber',
+            'carrierCode','serviceCode','batchId',
+            'shipDateStart','shipDateEnd',
+            'createDateStart','createDateEnd',
+            'voidDateStart','voidDateEnd',
+            'sortDir','page','pageSize',
+        ];
+
+        $query = [];
+        foreach ($allowed as $k) {
+            if (array_key_exists($k, $params) && $params[$k] !== '' && $params[$k] !== null) {
+                $query[$k] = $params[$k];
+            }
+        }
+
+        // defaults
+        if (empty($query['page']))     { $query['page'] = 1; }
+        if (empty($query['pageSize'])) { $query['pageSize'] = 100; }
+
+        // First request
+        $first = $this->request('GET', '/shipments', $query);
+        if (is_wp_error($first)) { return $first; }
+        if (!$autoPaginate)      { return $first; }
+
+        $all   = isset($first['shipments']) && is_array($first['shipments']) ? $first['shipments'] : [];
+        $total = isset($first['total']) ? (int) $first['total'] : null;
+        $pages = isset($first['pages']) ? (int) $first['pages'] : null;
+
+        $page = (int) ($first['page'] ?? $query['page']);
+        $size = (int) ($first['pageSize'] ?? $query['pageSize']);
+
+        while (true) {
+            if ($pages !== null && $page >= $pages) { break; }
+            if ($pages === null && $total !== null && count($all) >= $total) { break; }
+
+            $page++;
+            $query['page'] = $page;
+
+            $resp = $this->request('GET', '/shipments', $query);
+            if (is_wp_error($resp)) { return $resp; }
+
+            $chunk = isset($resp['shipments']) && is_array($resp['shipments']) ? $resp['shipments'] : [];
+            if (empty($chunk)) { break; }
+            $all = array_merge($all, $chunk);
+
+            if (isset($resp['pages'])) { $pages = (int) $resp['pages']; }
+            if (isset($resp['total'])) { $total = (int) $resp['total']; }
+
+            // safety stops
+            if (count($all) >= 200000) { break; }
+            if (count($chunk) < $size) { break; }
+        }
+
+        return ['shipments' => $all, 'total' => $total ?? count($all)];
+    }
+
+    /** Convenience alias */
+    public function listShipments( array $params = [], bool $autoPaginate = true ) {
+        return $this->listShipment($params, $autoPaginate);
+    }
+
 }
 
 // --- Optional convenience factory ---
