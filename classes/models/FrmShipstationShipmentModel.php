@@ -2,12 +2,12 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-class FrmShipstationShipmentModel {
+class FrmShipstationShipmentModel extends FrmShipstationAbstractModel {
     /** @var wpdb */
-    private $db;
+    protected $db;
 
     /** @var string Fully-qualified table name incl. prefix */
-    private string $table;
+    protected string $table;
 
     /** Whitelisted sortable columns */
     private const SORTABLE = [
@@ -119,12 +119,45 @@ class FrmShipstationShipmentModel {
         return $rows[0] ?? null;
     }
 
-    // ----------------------- utils -----------------------
+    public function multipleUpdateCreate( array $rows ) {
+        
+        $cols = [
+            'shp_order_id','shp_order_number','shipment_id','entry_id','shipment_total','insurance_cost',
+            'tracking_number','carrier_code','service_code','package_code',
+            'is_voided','voided_at','ship_to','weight','dimensions','created_at','updated_at','shipped_at'
+        ];
+        $formats = [
+            'shipment_id' => '%d',
+            'shp_order_id' => '%d',
+            'shp_order_number' => '%s',
+            'entry_id' => '%d',
+            'shipment_cost' => '%f',
+            'insurance_cost' => '%f',
+            'tracking_number' => '%s',
+            'carrier_code' => '%s',
+            'service_code' => '%s',
+            'package_code' => '%s',
+            'is_voided' => '%d',
+            'voided_date' => '%s',
+            'ship_to' => '%s',
+            'weight' => '%s',
+            'dimensions' => '%s',
+            'created_at' => '%s',
+            'updated_at' => '%s',
+            'shipped_at' => '%s',   
+        ];
 
+        return $this->multipleUpdateCreateAbstract( $rows, $cols, $formats, $uniqueKey = 'shipment_id' );
+        
+    }
+
+    // ----------------------- utils -----------------------
+    /*
     private function dateToMysql( string $in ): string {
         $t = strtotime( $in );
         if ( ! $t ) { return $in; }
         return gmdate( 'Y-m-d H:i:s', $t );
     }
+    */
 
 }
