@@ -211,11 +211,11 @@ class FrmShipstationApi {
      * @param int|string $labelId
      * @return array|WP_Error
      */
-    public function voidLabel( $labelId ) {
-        if ( empty( $labelId ) ) {
+    public function voidLabel( $shipmentId ) {
+        if ( empty( $shipmentId ) ) {
             return new WP_Error( 'shipstation_labelid_required', __( 'label_id is required.', 'shipstation-wp' ), [ 'status' => 400 ] );
         }
-        return $this->request( 'POST', '/labels/voidlabel', [], [ 'labelId' => (int) $labelId ] );
+        return $this->request( 'POST', '/shipments/voidlabel', [], [ 'shipmentId' => (int) $shipmentId ] );
     }
 
     // -------------------------
