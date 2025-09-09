@@ -2,7 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
 class FrmShipstationMigrations {
-    public const DB_VERSION = '1.0.2';
+    public const DB_VERSION = '1.0.4';
     public const VERSION_OPTION = 'shipstation_wp_db_version';
 
     /** Run on plugin activation */
@@ -71,7 +71,7 @@ class FrmShipstationMigrations {
             shp_order_id bigint(20) unsigned NOT NULL,
             shp_order_number varchar(100) NOT NULL,
             entry_id bigint(20) unsigned NULL,
-            shipment_total decimal(12,2) NOT NULL DEFAULT 0.00,
+            shipment_cost decimal(12,2) NOT NULL DEFAULT 0.00,
             insurance_cost decimal(12,2) NOT NULL DEFAULT 0.00,
             tracking_number varchar(100) NULL,
             carrier_code varchar(100) NULL,
