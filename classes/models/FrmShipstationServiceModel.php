@@ -2,11 +2,11 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-class FrmShipstationServiceModel {
+class FrmShipstationServiceModel extends FrmShipstationAbstractModel {
     /** @var wpdb */
-    private $db;
+    protected $db;
 
-    private string $table;
+    protected string $table;
 
     private const SORTABLE = [ 'id','code','carrier_code','name','is_domestic','is_international' ];
 
@@ -88,6 +88,24 @@ class FrmShipstationServiceModel {
         $rows = $this->getList( [ 'is_primary' => 1 ], [ 'limit' => 1, 'order_by' => 'id', 'order' => 'ASC' ] );
         if ( is_wp_error( $rows ) ) { return $rows; }
         return $rows[0] ?? null;
+    }
+
+    public function multipleUpdateCreate( array $rows ) {
+        
+        $cols = [
+            'name', 'code', 'carrier_code', 'is_domestic', 'is_international'
+        ];
+
+        $formats = [
+            'name'           => '%s',
+            'code'           => '%s',
+            'carrier_code'   => '%s',
+            'is_domestic'    => '%d',
+            'is_international' => '%d',
+        ];
+
+        return $this->multipleUpdateCreateAbstract( $rows, $cols, $formats, $uniqueKey = 'code' );
+        
     }
 
 }

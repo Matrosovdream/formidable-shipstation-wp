@@ -122,7 +122,7 @@ class FrmShipstationShipmentModel extends FrmShipstationAbstractModel {
     public function multipleUpdateCreate( array $rows ) {
         
         $cols = [
-            'shp_order_id','shp_order_number','shipment_id','entry_id','shipment_total','insurance_cost',
+            'shp_order_id','shp_order_number','shipment_id','entry_id','shipment_cost','insurance_cost',
             'tracking_number','carrier_code','service_code','package_code',
             'is_voided','voided_at','ship_to','weight','dimensions','created_at','updated_at','shipped_at'
         ];
@@ -138,7 +138,7 @@ class FrmShipstationShipmentModel extends FrmShipstationAbstractModel {
             'service_code' => '%s',
             'package_code' => '%s',
             'is_voided' => '%d',
-            'voided_date' => '%s',
+            'voided_at' => '%s',
             'ship_to' => '%s',
             'weight' => '%s',
             'dimensions' => '%s',

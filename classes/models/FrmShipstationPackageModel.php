@@ -2,11 +2,11 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-class FrmShipstationPackageModel {
+class FrmShipstationPackageModel extends FrmShipstationAbstractModel {
     /** @var wpdb */
-    private $db;
+    protected $db;
 
-    private string $table;
+    protected string $table;
 
     private const SORTABLE = [ 'id','code','carrier_code','name','is_domestic','is_international' ];
 
@@ -82,6 +82,24 @@ class FrmShipstationPackageModel {
 
     public function getAllByCarrierCode( string $carrierCode, array $opts = [] ) {
         return $this->getList( [ 'carrier_code' => $carrierCode ], $opts );
+    }
+
+    public function multipleUpdateCreate( array $rows ) {
+        
+        $cols = [
+            'name', 'code', 'carrier_code', 'is_domestic', 'is_international'
+        ];
+
+        $formats = [
+            'name'           => '%s',
+            'code'           => '%s',
+            'carrier_code'   => '%s',
+            'is_domestic'    => '%d',
+            'is_international' => '%d',
+        ];
+
+        return $this->multipleUpdateCreateAbstract( $rows, $cols, $formats, $uniqueKey = 'code' );
+        
     }
 
 }

@@ -60,7 +60,11 @@ abstract class FrmShipstationAbstractModel {
         foreach ( $batch as $row ) {
             $vals = [];
             foreach ( $cols as $c ) {
-                $vals[] = $this->escapeValueForSql( $formats[$c], $row[$c] ?? null );
+                if ( isset( $formats[$c] ) ) {
+                    $vals[] = $this->escapeValueForSql( $formats[$c], $row[$c] ?? null );
+                } else {
+                    $vals[] = $row[$c] ?? null;
+                }
             }
             $valuesSql[] = '(' . implode( ',', $vals ) . ')';
         }

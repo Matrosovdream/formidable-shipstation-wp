@@ -132,6 +132,17 @@ class FrmShipstationOrderModel extends FrmShipstationAbstractModel {
         return $rows[0] ?? null;
     }
 
+    /** Wrapper: all rows by order number */
+    public function getByOrdersNumber( string $orderNumber ) {
+        $rows = $this->getList( 
+            [ 'shp_order_number' => $orderNumber ], 
+            [ 'limit' => 1000, 'order_by' => 'shp_order_number', 'order' => 'ASC' ] 
+        );
+        if ( is_wp_error( $rows ) ) { return $rows; }
+        return $rows ?? null;
+    }
+
+
     /** Wrapper: first row by order id */
     public function getByOrderId( int $orderId ) {
         $rows = $this->getList( [ 'shp_order_id' => $orderId ], [ 'limit' => 1 ] );
