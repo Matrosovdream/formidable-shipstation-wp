@@ -83,7 +83,7 @@ class FrmShipstationRoutes {
 
     /** Admins OR owner of provided Formidable entry id */
     public function perm_admin_or_frm_owner( WP_REST_Request $req ) {
-        $user = wp_get_current_user();
+        $user = wp_get_current_user(); 
         if ( ! $user || ! $user->exists() ) {
             return new WP_Error('rest_not_logged_in', __('Authentication required.', 'shipstation-wp'), ['status' => 401]);
         }
