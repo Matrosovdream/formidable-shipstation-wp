@@ -24,15 +24,12 @@ class FrmShipstationInit {
         // CRON
         $this->include_cron();
 
-        /*
-        // CRON
-        require_once FRM_SHP_BASE_URL.'/classes/cron/schedules.cron.php';
-
-        // Shortcodes
-        $this->include_shortcodes();
-
         // Hooks
         $this->include_hooks();
+
+        /*
+        // Shortcodes
+        $this->include_shortcodes();
         */
 
     }
@@ -86,6 +83,10 @@ class FrmShipstationInit {
         require_once FRM_SHP_BASE_URL.'/classes/cron/FrmShipstationCarriersCron.php';
         FrmShipstationCarriersCron::init();
 
+        // Shipments cron
+        require_once FRM_SHP_BASE_URL.'/classes/cron/FrmShipstationShipmentsCron.php';
+        FrmShipstationShipmentsCron::init();
+
     }
 
     private function include_shortcodes() {
@@ -97,16 +98,9 @@ class FrmShipstationInit {
     }
 
     private function include_hooks() {
-
-        // Formidable forms processing
-        require_once DOTFILER_BASE_URL.'/actions/formidable.php';
-
-        // Ajax
-        require_once DOTFILER_BASE_URL.'/actions/ajax.php';
-        require_once DOTFILER_BASE_URL.'/actions/ajax/phone.validate.php';
-
-        // Page CSS/JS scripts
-        require_once DOTFILER_BASE_URL.'/actions/page.php';
+        
+        // Void shipment ajax
+        require_once FRM_SHP_BASE_URL.'/actions//user/void-shipment.php';
 
     }
 
