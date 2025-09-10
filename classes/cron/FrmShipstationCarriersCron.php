@@ -29,9 +29,9 @@ class FrmShipstationCarriersCron {
 
     /** The job handler — calls your model's updateOrdersApi() */
     public static function run_update_orders(): void {
-        if ( ! class_exists( 'FrmShipstationModelEntry' ) ) { return; }
+        if ( ! class_exists( 'FrmShipstationCarrierHelper' ) ) { return; }
         try {
-            $model = new FrmShipstationModelEntry();
+            $model = new FrmShipstationCarrierHelper();
             $res   = $model->updateCarriersApi();
             if ( is_wp_error( $res ) ) {
                 error_log( '[ShipStation] updateCarriersApi error: ' . $res->get_error_message() );

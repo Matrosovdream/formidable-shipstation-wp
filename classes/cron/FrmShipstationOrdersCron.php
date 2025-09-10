@@ -29,9 +29,9 @@ class FrmShipstationOrdersCron {
 
     /** The job handler — calls your model's updateOrdersApi() */
     public static function run_update_orders(): void {
-        if ( ! class_exists( 'FrmShipstationModelEntry' ) ) { return; }
+        if ( ! class_exists( 'FrmShipstationOrderHelper' ) ) { return; }
         try {
-            $model = new FrmShipstationModelEntry();
+            $model = new FrmShipstationOrderHelper();
             $res   = $model->updateOrdersApi();
             if ( is_wp_error( $res ) ) {
                 error_log( '[ShipStation] updateOrdersApi error: ' . $res->get_error_message() );
