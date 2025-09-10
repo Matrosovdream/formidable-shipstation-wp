@@ -7,7 +7,7 @@ class FrmShipstationInit {
         require_once FRM_SHP_BASE_URL.'/classes/admin/FrmShipstationAdminSettings.php';
 
         // API class
-        require_once FRM_SHP_BASE_URL.'/classes/api/FrmShipstationApi.php';
+        $this->include_api();
 
         // Endpoints
         require_once FRM_SHP_BASE_URL.'/classes/endpoints/FrmShipstationRoutes.php';
@@ -20,6 +20,9 @@ class FrmShipstationInit {
 
         // Utilities
         $this->include_utils();
+
+        // Helpers
+        $this->include_helpers();
 
         // CRON
         $this->include_cron();
@@ -41,6 +44,22 @@ class FrmShipstationInit {
 
         // Run migrations
         FrmShipstationMigrations::maybe_upgrade();
+
+    }
+
+    private function include_api() {
+
+        // Abstract API
+        require_once FRM_SHP_BASE_URL.'/classes/api/FrmShipstationAbstractApi.php';
+
+        // Order API
+        require_once FRM_SHP_BASE_URL.'/classes/api/FrmShipstationOrderApi.php';
+
+        // Shipment API
+        require_once FRM_SHP_BASE_URL.'/classes/api/FrmShipstationShipmentApi.php';
+
+        // Carrier API
+        require_once FRM_SHP_BASE_URL.'/classes/api/FrmShipstationCarrierApi.php';
 
     }
 
@@ -70,6 +89,19 @@ class FrmShipstationInit {
 
         // Model Entry
         require_once FRM_SHP_BASE_URL.'/classes/utils/FrmShipstationModelEntry.php';
+
+    }
+
+    private function include_helpers() {
+
+        // Order Helper
+        require_once FRM_SHP_BASE_URL.'/classes/helpers/FrmShipstationOrderHelper.php';
+
+        // Carrier Helper
+        require_once FRM_SHP_BASE_URL.'/classes/helpers/FrmShipstationCarrierHelper.php';
+
+        // Shipment Helper
+        require_once FRM_SHP_BASE_URL.'/classes/helpers/FrmShipstationShipmentHelper.php';
 
     }
 
